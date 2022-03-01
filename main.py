@@ -13,7 +13,7 @@ for i in range(1, 41):
             image = plt.imread(f).flatten()
         image = list(image)
         D.append(image)
-#print(D)
+print(D)
 #creating the y label vector
 y = []
 for i in range(1,41):
