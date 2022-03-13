@@ -41,24 +41,24 @@ def knn(x_train, x_test, y_train, y_test, a, b):
 
 
 def lda(d_train, y_train, d_test, y_test):
-    split_ratio = 5
+    split_ratio = int((d_train.shape[0] / (d_train.shape[0] + d_test.shape[0])) * 10)
     overall_mean = np.mean(d_train, axis=0).reshape(-1, 1)
-    sample_mean = np.zeros((40, 10304), dtype=np.float32)
-    data = np.vsplit(d_train, 200 / split_ratio)
-    for i in range(0, int(200 / split_ratio)):
+    sample_mean = np.zeros((40, d_train.shape[1]), dtype=np.float32)
+    data = np.vsplit(d_train, d_train.shape[0] / split_ratio)
+    for i in range(0, int(d_train.shape[0] / split_ratio)):
         sample_mean[i] = np.mean(data[i], axis=0)
     # print(overall_mean)
-    Sb = np.zeros((10304, 10304), dtype=np.float32)
+    Sb = np.zeros((d_train.shape[1], d_train.shape[1]), dtype=np.float32)
     # print(sample_mean.shape)
     for i in range(0, 40):
         Sb += (split_ratio * np.dot((sample_mean[i].reshape(-1, 1) - overall_mean),
                                     (sample_mean[i].reshape(-1, 1) - overall_mean).transpose()))
 
-    z = np.zeros((40, 5, 10304), dtype=np.float32)
+    z = np.zeros((40, split_ratio, d_train.shape[1]), dtype=np.float32)
     for i in range(0, 40):
         z[i] = np.subtract(data[i], sample_mean[i].reshape(1, -1))
 
-    s = np.zeros((10304, 10304), dtype=np.float32)
+    s = np.zeros((d_train.shape[1], d_train.shape[1]), dtype=np.float32)
     for i in range(0, 40):
         s += np.dot(z[i].T, z[i])
 
@@ -172,6 +172,10 @@ def split_bonus(size):
     y_train = np.array(y_train)
     d_test = np.array(d_test)
     y_test = np.array(y_test)
+    print(d_train.shape)
+    print(d_test.shape)
+    print(y_train.shape)
+    print(y_test.shape)
     return d_train, y_train, d_test, y_test
 
 
@@ -196,11 +200,12 @@ def faces_nonFaces():
 
 
 if __name__ == '__main__':
-    read()
     # d_train, y_train, d_test, y_test = split(400)
+    # print(y_train)
     # pca(d_train,y_train,d_test,y_test)
     # lda(d_train,y_train,d_test,y_test)
-    # d_train, y_train, d_test, y_test = split_bonus(400)
+    d_train, y_train, d_test, y_test = split_bonus(400)
+    # print(y_train)
     # pca(d_train,y_train,d_test,y_test)
-    # lda(d_train,y_train,d_test,y_test)
-    faces_nonFaces()
+    lda(d_train, y_train, d_test, y_test)
+    # faces_nonFaces()
