@@ -104,26 +104,26 @@ def knn(x_train, x_test, y_train, y_test, a, b):
     plt.show()
 
 
-def lda(d_train, y_train, d_test, y_test):
+def lda(d_train, y_train, d_test, y_test, classes):
     split_ratio = int((d_train.shape[0] / (d_train.shape[0] + d_test.shape[0])) * 10)
     overall_mean = np.mean(d_train, axis=0).reshape(-1, 1)
-    sample_mean = np.zeros((40, d_train.shape[1]), dtype=np.float32)
+    sample_mean = np.zeros((classes, d_train.shape[1]), dtype=np.float32)
     data = np.vsplit(d_train, d_train.shape[0] / split_ratio)
-    for i in range(0, int(d_train.shape[0] / split_ratio)):
+    for i in range(0, classes):
         sample_mean[i] = np.mean(data[i], axis=0)
     # print(overall_mean)
     Sb = np.zeros((d_train.shape[1], d_train.shape[1]), dtype=np.float32)
     # print(sample_mean.shape)
-    for i in range(0, 40):
+    for i in range(0, classes):
         Sb += (split_ratio * np.dot((sample_mean[i].reshape(-1, 1) - overall_mean),
                                     (sample_mean[i].reshape(-1, 1) - overall_mean).transpose()))
 
-    z = np.zeros((40, split_ratio, d_train.shape[1]), dtype=np.float32)
-    for i in range(0, 40):
+    z = np.zeros((classes, split_ratio, d_train.shape[1]), dtype=np.float32)
+    for i in range(0, classes):
         z[i] = np.subtract(data[i], sample_mean[i].reshape(1, -1))
 
     s = np.zeros((d_train.shape[1], d_train.shape[1]), dtype=np.float32)
-    for i in range(0, 40):
+    for i in range(0, classes):
         s += np.dot(z[i].T, z[i])
 
     _, eigenvectors = np.linalg.eigh(np.dot(np.linalg.inv(s), Sb))
@@ -194,21 +194,30 @@ def faces_nonFaces():
     y = []
     for i in range(400):  # creating the y label vector
         y.append(1)
-    for i in range(140):
+    for i in range(200):
         y.append(0)
     y = np.array([y]).T
-    d_train, y_train, d_test, y_test = split(540)
+    d_train, y_train, d_test, y_test = split(600)
     pca(d_train, y_train, d_test, y_test)
-    # lda(d_train,y_train,d_test,y_test)
-
+    lda(d_train, y_train, d_test, y_test, 2)
+    y = []
+    for i in range(400):  # creating the y label vector
+        y.append(1)
+    for i in range(400):
+        y.append(0)
+    y = np.array([y]).T
+    d_train, y_train, d_test, y_test = split(800)
+    pca(d_train, y_train, d_test, y_test)
+    lda(d_train, y_train, d_test, y_test, 2)
 
 if __name__ == '__main__':
+    read()
     # d_train, y_train, d_test, y_test = split(400)
     # print(y_train)
     # pca(d_train,y_train,d_test,y_test)
     # lda(d_train,y_train,d_test,y_test)
-    d_train, y_train, d_test, y_test = split_bonus(400)
+    # d_train, y_train, d_test, y_test = split_bonus(400)
     # print(y_train)
     # pca(d_train,y_train,d_test,y_test)
-    lda(d_train, y_train, d_test, y_test)
-    # faces_nonFaces()
+    # lda(d_train, y_train, d_test, y_test)
+    faces_nonFaces()
