@@ -17,32 +17,11 @@ def cal_accuracy(y_test, y_pred):
           accuracy_score(y_test, y_pred) * 100)
 
 
-def knn(x_train, x_test, y_train, y_test):
+def knn(x_train, x_test, y_train, y_test, a, b):
     scores_list = []
     k_range = [1, 3, 5, 7]
-    for k in k_range:
-        knn = KNeighborsClassifier(n_neighbors=k)
-        knn.fit(x_train, y_train.ravel())
-        y_pred = knn.predict(x_test)
-        scores_list.append(accuracy_score(y_test, y_pred))
-        print("Accuracy Report for k=", k)
-        cal_accuracy(y_test, y_pred)
-        print("************")
-    print("Most accurate k: {}, with Accuracy {}".format(scores_list.index(max(scores_list)) + 1,
-                                                         scores_list[scores_list.index(max(scores_list))] * 100))
-    max_accuracy.append(max(scores_list) * 100)
-
-    plt.plot(k_range, scores_list)
-    plt.title('K-NN with K tuned')
-    plt.xlabel("Value of K")
-    plt.ylabel("Testing Accuracy")
-    plt.show()
-
-
-def knn_pca(x_train, x_test, y_train, y_test, a, b):
-    scores_list = []
-    k_range = [1, 3, 5, 7]
-    print("alpha=", a, "\nnumber of features = ", b)
+    if (a != 0) & (b != 0):
+        print("alpha=", a, "\nnumber of features = ", b)
     for k in k_range:
         knn = KNeighborsClassifier(n_neighbors=k)
         knn.fit(x_train, y_train.ravel())
@@ -89,7 +68,7 @@ def lda(d_train, y_train, d_test, y_test):
     d_train_reduced = np.dot(d_train, u_reduced)
     d_test_reduced = np.dot(d_test, u_reduced)
     print("******************* LDA *********************")
-    knn(d_train_reduced, d_test_reduced, y_train, y_test)
+    knn(d_train_reduced, d_test_reduced, y_train, y_test, 0, 0)
 
 
 def pca(d_train, y_train, d_test, y_test):
@@ -135,7 +114,7 @@ def pca(d_train, y_train, d_test, y_test):
         A_train = np.dot(d_train, np.transpose(U))
         A_test = np.dot(d_test, np.transpose(U))
         r_accuracies = []
-        knn_pca(A_train, A_test, y_train, y_test, alphas[i], alphas_vector)
+        knn(A_train, A_test, y_train, y_test, alphas[i], alphas_vector)
         i += 1
 
 
@@ -173,6 +152,29 @@ def split(size):
     return d_train, y_train, d_test, y_test
 
 
+def split_bonus(size):
+    tr = [0, 1, 2, 3, 4, 5, 6]
+    ts = [7, 8, 9]
+    d_train = []
+    y_train = []
+    d_test = []
+    y_test = []
+    for j in tr:
+        for i in range(j, size, 10):
+            d_train.append(list(D[i][:]))
+            y_train.append(list(y[i][:]))
+    for k in ts:
+        for i in range(k, size, 10):
+            d_test.append(list(D[i][:]))
+            y_test.append(list(y[i][:]))
+
+    d_train = np.array(d_train)
+    y_train = np.array(y_train)
+    d_test = np.array(d_test)
+    y_test = np.array(y_test)
+    return d_train, y_train, d_test, y_test
+
+
 def faces_nonFaces():
     global y
     for filepath in glob.glob(
@@ -189,14 +191,16 @@ def faces_nonFaces():
         y.append(0)
     y = np.array([y]).T
     d_train, y_train, d_test, y_test = split(540)
-    #pca(d_train, y_train, d_test, y_test)
-    lda(d_train,y_train,d_test,y_test)
-
+    pca(d_train, y_train, d_test, y_test)
+    # lda(d_train,y_train,d_test,y_test)
 
 
 if __name__ == '__main__':
     read()
     # d_train, y_train, d_test, y_test = split(400)
+    # pca(d_train,y_train,d_test,y_test)
+    # lda(d_train,y_train,d_test,y_test)
+    # d_train, y_train, d_test, y_test = split_bonus(400)
     # pca(d_train,y_train,d_test,y_test)
     # lda(d_train,y_train,d_test,y_test)
     faces_nonFaces()
