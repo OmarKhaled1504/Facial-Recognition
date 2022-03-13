@@ -7,16 +7,80 @@ from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 
-D = []
-y = []
-max_accuracy = []
+D = []  # Data matrix
+y = []  # label matrix
+max_accuracy = []  # accuracies matrix
 
 
+# Download the data set
+def read():  # reading the pgm files and creating the data matrix
+    for i in range(1, 41):
+        for filepath in glob.glob(
+                os.path.join(f'faces/s{i}', '*.pgm')):
+            with open(filepath, 'rb') as f:
+                image = plt.imread(f).flatten()
+            image = list(image)
+            D.append(image)
+    global y
+    for i in range(1, 41):  # creating the y label vector
+        for j in range(1, 11):
+            y.append(i)
+    y = np.array([y]).T
+
+
+# Generating the data matrix and splitting data into 50:50
+# odd rows for training even rows for testing
+def split(size):
+    d_train = []
+    y_train = []
+    d_test = []
+    y_test = []
+    for i in range(1, size, 2):
+        d_train.append(list(D[i]))
+        y_train.append(list(y[i]))
+    for i in range(0, size, 2):
+        d_test.append(list(D[i]))
+        y_test.append(list(y[i]))
+
+    d_train = np.array(d_train)
+    y_train = np.array(y_train)
+    d_test = np.array(d_test)
+    y_test = np.array(y_test)
+    return d_train, y_train, d_test, y_test
+
+
+# Splitting data into 70:30 the first 7 for training and last 3 for testing
+def split_bonus(size):
+    tr = [0, 1, 2, 3, 4, 5, 6]
+    ts = [7, 8, 9]
+    d_train = []
+    y_train = []
+    d_test = []
+    y_test = []
+    for j in range(0, size, 10):
+        for i in tr:
+            d_train.append(list(D[i + j][:]))
+            y_train.append(list(y[i + j][:]))
+    for i in range(0, size, 10):
+        for k in ts:
+            d_test.append(list(D[i + k][:]))
+            y_test.append(list(y[i + k][:]))
+
+    d_train = np.array(d_train)
+    y_train = np.array(y_train)
+    d_test = np.array(d_test)
+    y_test = np.array(y_test)
+
+    return d_train, y_train, d_test, y_test
+
+
+# calculating the accuracy for the classifier
 def cal_accuracy(y_test, y_pred):
     print("Accuracy: ",
           accuracy_score(y_test, y_pred) * 100)
 
 
+# knn classifier tuning for calculating accuracy and plotting the data
 def knn(x_train, x_test, y_train, y_test, a, b):
     scores_list = []
     k_range = [1, 3, 5, 7]
@@ -116,67 +180,6 @@ def pca(d_train, y_train, d_test, y_test):
         r_accuracies = []
         knn(A_train, A_test, y_train, y_test, alphas[i], alphas_vector)
         i += 1
-
-
-def read():  # reading the pgm files and creating the data matrix
-    for i in range(1, 41):
-        for filepath in glob.glob(
-                os.path.join(f'faces/s{i}', '*.pgm')):
-            with open(filepath, 'rb') as f:
-                image = plt.imread(f).flatten()
-            image = list(image)
-            D.append(image)
-    global y
-    for i in range(1, 41):  # creating the y label vector
-        for j in range(1, 11):
-            y.append(i)
-    y = np.array([y]).T
-
-
-def split(size):
-    d_train = []
-    y_train = []
-    d_test = []
-    y_test = []
-    for i in range(1, size, 2):
-        d_train.append(list(D[i]))
-        y_train.append(list(y[i]))
-    for i in range(0, size, 2):
-        d_test.append(list(D[i]))
-        y_test.append(list(y[i]))
-
-    d_train = np.array(d_train)
-    y_train = np.array(y_train)
-    d_test = np.array(d_test)
-    y_test = np.array(y_test)
-    return d_train, y_train, d_test, y_test
-
-
-def split_bonus(size):
-    tr = [0, 1, 2, 3, 4, 5, 6]
-    ts = [7, 8, 9]
-    d_train = []
-    y_train = []
-    d_test = []
-    y_test = []
-    for j in range(0, size, 10):
-        for i in tr:
-            d_train.append(list(D[i + j][:]))
-            y_train.append(list(y[i + j][:]))
-    for i in range(0, size, 10):
-        for k in ts:
-            d_test.append(list(D[i + k][:]))
-            y_test.append(list(y[i + k][:]))
-
-    d_train = np.array(d_train)
-    y_train = np.array(y_train)
-    d_test = np.array(d_test)
-    y_test = np.array(y_test)
-    print(d_train.shape)
-    print(d_test.shape)
-    print(y_train.shape)
-    print(y_test.shape)
-    return d_train, y_train, d_test, y_test
 
 
 def faces_nonFaces():
