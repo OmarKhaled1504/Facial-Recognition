@@ -159,14 +159,14 @@ def split_bonus(size):
     y_train = []
     d_test = []
     y_test = []
-    for j in tr:
-        for i in range(j, size, 10):
-            d_train.append(list(D[i][:]))
-            y_train.append(list(y[i][:]))
-    for k in ts:
-        for i in range(k, size, 10):
-            d_test.append(list(D[i][:]))
-            y_test.append(list(y[i][:]))
+    for j in range(0, size, 10):
+        for i in tr:
+            d_train.append(list(D[i + j][:]))
+            y_train.append(list(y[i + j][:]))
+    for i in range(0, size, 10):
+        for k in ts:
+            d_test.append(list(D[i + k][:]))
+            y_test.append(list(y[i + k][:]))
 
     d_train = np.array(d_train)
     y_train = np.array(y_train)
